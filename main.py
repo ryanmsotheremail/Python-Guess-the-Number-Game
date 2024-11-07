@@ -8,7 +8,6 @@
 # Too High: The number guessed is higher than the number selected by the program
 # Too Low: The number guessed is Lower than the number selected by the program
 # --- Ideas for expansions ---
-# Multiplayer, set number of players, provide names, track player stats
 # Computer player, set to guess random numbers in range of too high and too low from its prior attempts
 # add a "would you like to play again" prompt
 # -- Guess The Number --
@@ -25,6 +24,10 @@ chosenNumber = 0
 guessedNumber = 2
 numberList = []
 binarySearchCount = 0
+easyMode = False
+computerPlayer = False
+computerGuess = 0
+computerGuessCounter = 0
 
 
 def valueinput(prompt):
@@ -36,16 +39,7 @@ def valueinput(prompt):
             print("Invalid input. Please enter a whole number.")
 
 
-easyMode = False
-playerName = input("Enter Player Name\n")
-print(f"Thank you, {playerName} for playing guess the number.")
-easyModeChoice = input(f"would you like easy mode turned on? Y or N ")
-if easyModeChoice.lower() == "y":
-    easyMode = True
-    print("Easy mode has been enabled")
-else:
-    print("Easy mode is not enabled")
-time.sleep(2)
+
 
 
 # obtain low and high values for range
@@ -94,11 +88,19 @@ def binary_search(chosenNumber,numberList):
             numberList = [n for n in numberList if n < binarySearch]
     return binarySearchCount
 
-def gameplay(chosenNumber, guessedNumber, tooLowValue, tooHighValue, guessCounter):
-    while chosenNumber != guessedNumber:
-        print(f"Current attempts: {guessCounter} ")
+
+def gameplay(chosenNumber, guessedNumber, tooLowValue, tooHighValue, guessCounter, computerGuess, computerGuessCounter, easyMode):
+    while chosenNumber != guessedNumber and chosenNumber != computerGuess:
         print(f"Please choose a number between {lowValue} and {highValue}.")
-        if easyMode and guessCounter > 0:
+        if computerPlayer == True and guessCounter >= 1:
+            computerGuessCounter += 1
+            computerGuess = random.randint(tooLowValue, tooHighValue)
+            print("ComputerGuess:",computerGuess)
+            print("computerGuessCounter:",computerGuessCounter)
+            if computerGuess == chosenNumber:
+                break
+            time.sleep(1)
+        if easyMode == True and guessCounter > 0:
             print(f"EASY MODE>> You are looking for a number between: {tooLowValue} and {tooHighValue} ")
         guessedNumber = valueinput("Please guess a number")
         if guessedNumber not in range(lowValue, highValue + 1):
@@ -118,53 +120,92 @@ def gameplay(chosenNumber, guessedNumber, tooLowValue, tooHighValue, guessCounte
         elif guessedNumber == chosenNumber:
             print(f"{guessedNumber} is right! You have won!")
             print(f"You guessed the right number in {guessCounter} attempts")
-    return guessCounter
+    if computerPlayer and computerGuess == chosenNumber:
+        print("The computer player has guessed the correct number.")
+        winner = "computer"
+    elif not computerPlayer:
+        winner = "player"
+    elif computerPlayer and computerGuess != chosenNumber:
+        print("You have guessed the correct number before the computer!")
+        winner = "player"
+    return guessCounter, computerGuess, computerGuessCounter, winner
 
 
-def determine_score(binarySearchCount, guessCounter):
-    print(
-        f"using the binary search method the program was able to guess the right number in {binarySearchCount} guesses.")
+def determine_score(binarySearchCount, guessCounter, computerPlayer, winner):
+    if winner == "computer":
+        print("The computer won")
+        time.sleep(1)
+        print("You did not earn any points this time.")
+    elif winner == "player":
+        print(f"using the binary search method the program would have guessed the right number in "
+              f"{binarySearchCount} guesses.")
+        print(f"You won in {guessCounter} guesses")
+        time.sleep(1)
+        print(f"Calculating your score...")
+        time.sleep(1)
+        perfectScore = binarySearchCount
+        match guessCounter:
+            case guessCounter if guessCounter < perfectScore:
+                print("110 points, Amazing! better than the computer could do!")
+            case guessCounter if guessCounter == perfectScore:
+                print("100 points, perfect score!")
+            case guessCounter if guessCounter == perfectScore + 1:
+                print("90 points")
+            case guessCounter if guessCounter == perfectScore + 2:
+                print("80 points")
+            case guessCounter if guessCounter == perfectScore + 3:
+                print("70 points")
+            case guessCounter if guessCounter == perfectScore + 4:
+                print("60 points")
+            case guessCounter if guessCounter == perfectScore + 5:
+                print("50 points")
+            case guessCounter if guessCounter == perfectScore + 6:
+                print("40 points")
+            case guessCounter if guessCounter == perfectScore + 7:
+                print("30 points")
+            case guessCounter if guessCounter == perfectScore + 8:
+                print("20 points")
+            case guessCounter if guessCounter == perfectScore + 9:
+                print("10 points")
+            case guessCounter if guessCounter == perfectScore + 10:
+                print("5 points")
+            case guessCounter if guessCounter > perfectScore + 10:
+                print("1 point")
+
+
+def game_mode():
+    easyModeChoice = input(f"would you like easy mode turned on? Y or N ")
+    if easyModeChoice.lower() == "y":
+        print("Easy mode has been enabled")
+        easyMode = True
+    else:
+        print("Easy mode is not enabled")
+        easyMode = False
     time.sleep(1)
-    print(f"Calculating your score...")
-    time.sleep(1)
-    perfectScore = binarySearchCount
-    match guessCounter:
-        case guessCounter if guessCounter < perfectScore:
-            print("110 points, Amazing! better than the computer could do!")
-        case guessCounter if guessCounter == perfectScore:
-            print("100 points, perfect score!")
-        case guessCounter if guessCounter == perfectScore + 1:
-            print("90 points")
-        case guessCounter if guessCounter == perfectScore + 2:
-            print("80 points")
-        case guessCounter if guessCounter == perfectScore + 3:
-            print("70 points")
-        case guessCounter if guessCounter == perfectScore + 4:
-            print("60 points")
-        case guessCounter if guessCounter == perfectScore + 5:
-            print("50 points")
-        case guessCounter if guessCounter == perfectScore + 6:
-            print("40 points")
-        case guessCounter if guessCounter == perfectScore + 7:
-            print("30 points")
-        case guessCounter if guessCounter == perfectScore + 8:
-            print("20 points")
-        case guessCounter if guessCounter == perfectScore + 9:
-            print("10 points")
-        case guessCounter if guessCounter == perfectScore + 10:
-            print("5 points")
-        case guessCounter if guessCounter > perfectScore + 10:
-            print("1 point")
+    computerPlayerChoice = input(f"would you like to play against the Computer? Y or N ")
+    if computerPlayerChoice.lower() == "y":
+        print("Computer player enabled")
+        computerPlayer = True
+    else:
+        print("Computer player is not enabled")
+        computerPlayer = False
+    return easyMode, computerPlayer
 
+
+playerName = input("Enter Player Name\n")
+print(f"Thank you, {playerName} for playing guess the number.")
+
+
+easyMode, computerPlayer = game_mode()
 lowValue, highValue = define_range()
+chosenNumber, guessedNumber = choose_number(lowValue, highValue)
 tooLowValue = lowValue
 tooHighValue = highValue
-chosenNumber, guessedNumber = choose_number(lowValue, highValue)
 numberList = number_list_generator(lowValue, highValue)
 binarySearchCount = binary_search(chosenNumber, numberList)
-guessCounter = gameplay(chosenNumber, guessedNumber, tooLowValue, tooHighValue, guessCounter)
+guessCounter, computerGuess, computerGuessCounter, winner = gameplay(chosenNumber, guessedNumber, tooLowValue, tooHighValue, guessCounter, computerGuess, computerGuessCounter, easyMode)
 time.sleep(3)
-determine_score(binarySearchCount, guessCounter)
+determine_score(binarySearchCount, guessCounter, computerPlayer, winner)
 
 
 exit()
